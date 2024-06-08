@@ -28,3 +28,6 @@ export const deleteAllPosts = async () => {
 export const deletePost = async (id: number) => {
   await db.delete(postsTable).where(eq(postsTable.id, id));
 };
+export const updatePost = async () => {
+  await db.update(postsTable).set({ title: "a" }).where(eq(postsTable.id, id));
+};

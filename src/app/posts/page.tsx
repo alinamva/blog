@@ -9,7 +9,11 @@ const Posts = async () => {
   return (
     <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5 items-center justify-between">
       {posts?.map(({ id, ...post }) => (
-        <Post key={id} id={id} {...post} />
+        <Post
+          key={id}
+          id={id}
+          {...post}
+        />
       ))}
     </div>
   );
