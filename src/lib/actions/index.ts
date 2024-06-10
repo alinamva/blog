@@ -1,9 +1,12 @@
 "use server";
 
-import db from "@/lib/db/migrate";
-import { postsTable } from "@/lib/db/schema";
+import { postsTable, usersTable } from "@/lib/db/schema";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
+import { lucia } from "@/lib/auth";
+import { generateIdFromEntropySize } from "lucia";
+import db from "../db/migrate";
 
 export const createPost = async (data: FormData) => {
   const title = data.get("title") as string;
@@ -30,4 +33,25 @@ export const deletePost = async (id: number) => {
 };
 export const updatePost = async () => {
   await db.update(postsTable).set({ title: "a" }).where(eq(postsTable.id, id));
+};
+
+export const signup = async (data: FormData) => {
+  const userId = generateIdFromEntropySize(10);
+  const username = data.get("username") as string;
+  const password_hash = data.get("password_hash") as string;
+  // const password_hash = await hash(password);
+  const newUser = {
+    id: userId,
+    username: username,
+    password_hash: password_hash,
+  };
+
+  await db.insert(usersTable).values(newUser);
+  const session = await lucia.createSession(userId, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes
+  );
 };

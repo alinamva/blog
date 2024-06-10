@@ -13,7 +13,23 @@ const postsTable = pgTable("posts", {
     .$onUpdate(() => new Date()),
 });
 
-type Post = typeof postsTable.$inferSelect;
+const usersTable = pgTable("users", {
+  id: text("id").primaryKey(),
+  username: varchar("username", { length: 32 }).notNull().unique(),
+  password_hash: text("password_hash"),
+});
 
-export { postsTable };
-export type { Post };
+const sessionTable = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => usersTable.id),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+type Post = typeof postsTable.$inferSelect;
+type User = typeof usersTable.$inferSelect;
+type Session = typeof sessionTable.$inferSelect;
+
+export { postsTable, usersTable, sessionTable };
+export type { Post, User, Session };
