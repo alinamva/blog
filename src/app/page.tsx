@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
 import Posts from "./posts/page";
-import { deleteAllPosts } from "@/lib/actions";
+import { deleteAllPosts, logout } from "@/lib/actions";
 
 export default async function Home() {
   return (
@@ -12,11 +12,15 @@ export default async function Home() {
           <Button>Add a post</Button>
         </Link>
         <form action={deleteAllPosts}>
-          <Button variant="destructive" type="submit">
+          <Button
+            variant="destructive"
+            type="submit"
+          >
             Delete all posts
           </Button>
         </form>
       </div>
+
       <Posts />
     </main>
   );

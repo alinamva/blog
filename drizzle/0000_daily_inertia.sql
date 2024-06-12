@@ -10,14 +10,18 @@ CREATE TABLE IF NOT EXISTS "posts" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "sessions" (
 	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text,
-	"expires_at" timestamp NOT NULL
+	"user_id" text NOT NULL,
+	"expires_at" timestamp NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"username" varchar(32) NOT NULL,
 	"password_hash" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_username_unique" UNIQUE("username")
 );
 --> statement-breakpoint

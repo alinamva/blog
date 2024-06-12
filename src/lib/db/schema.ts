@@ -17,6 +17,11 @@ const usersTable = pgTable("users", {
   id: text("id").primaryKey(),
   username: varchar("username", { length: 32 }).notNull().unique(),
   password_hash: text("password_hash"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
 });
 
 const sessionTable = pgTable("sessions", {
@@ -25,6 +30,11 @@ const sessionTable = pgTable("sessions", {
     .notNull()
     .references(() => usersTable.id),
   expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
 });
 
 type Post = typeof postsTable.$inferSelect;
