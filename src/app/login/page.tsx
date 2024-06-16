@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { login } from "@/lib/actions";
+import { validateRequest } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default async function Page() {
+export default async function Login() {
+  const { session } = await validateRequest();
+  if (session) {
+    redirect("/");
+  }
   return (
     <div className="text-munssel flex flex-col w-[80%] md:w-1/3 m-auto gap-6">
       <h1>Sign in</h1>

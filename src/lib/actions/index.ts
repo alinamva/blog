@@ -7,21 +7,25 @@ import { cookies } from "next/headers";
 import { lucia, validateRequest } from "@/lib/auth";
 import { generateIdFromEntropySize } from "lucia";
 import db from "../db/migrate";
-import { hash, verify } from "@node-rs/argon2";
+import { hash } from "@node-rs/argon2";
 export const createPost = async (data: FormData) => {
-  const title = data.get("title") as string;
-  const description = data.get("description") as string;
-  const author = data.get("author") as string;
-  const image = data.get("image") as string;
-  const newPost = {
-    title: title[0].toUpperCase() + title.slice(1),
-    description: description[0].toLocaleUpperCase() + description.slice(1),
-    author: author[0].toLocaleUpperCase() + author.slice(1),
-    image,
-  };
-  await db.insert(postsTable).values(newPost);
-  console.log(newPost);
-  redirect("/");
+  const { user } = await validateRequest();
+  if (user) {
+    const { session } = await validateRequest();
+    const title = data.get("title") as string;
+    const description = data.get("description") as string;
+    const image = data.get("image") as string;
+    const author = session?.userId;
+    const newPost = {
+      title: title[0].toUpperCase() + title.slice(1),
+      description: description[0].toLocaleUpperCase() + description.slice(1),
+      author,
+      image,
+    };
+    await db.insert(postsTable).values(newPost);
+    console.log(newPost);
+    redirect("/");
+  }
 };
 
 export const deleteAllPosts = async () => {
@@ -69,26 +73,8 @@ export const getSessionsByUserId = async (userId: string) => {
 };
 export const login = async (formData: FormData) => {
   const username = formData.get("username") as string;
-  // if (
-  //   typeof username !== "string" ||
-  //   username.length < 3 ||
-  //   username.length > 31 ||
-  //   !/^[a-z0-9_-]+$/.test(username)
-  // ) {
-  //   return {
-  //     error: "Invalid username",
-  //   };
-  // }
+
   const password = formData.get("password");
-  // if (
-  //   typeof password !== "string" ||
-  //   password.length < 6 ||
-  //   password.length > 255
-  // ) {
-  //   return {
-  //     error: "Invalid password",
-  //   };
-  // }
 
   const existingUser = await db
     .select()
@@ -100,17 +86,6 @@ export const login = async (formData: FormData) => {
     return "User doesn't exists";
   }
 
-  // const validPassword = await verify(existingUser.password_hash, password, {
-  //   memoryCost: 19456,
-  //   timeCost: 2,
-  //   outputLen: 32,
-  //   parallelism: 1,
-  // });
-  // if (!validPassword) {
-  //   return {
-  //     error: "Incorrect username or password",
-  //   };
-  // }
   const existingSessions = await getSessionsByUserId(existingUser.id);
   for (const session of existingSessions) {
     await lucia.invalidateSession(session.id);
@@ -118,17 +93,21 @@ export const login = async (formData: FormData) => {
 
   const session = await lucia.createSession(existingUser.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
+  cookies().set(sessionCookie.name, sessionCookie.value, {
+    ...sessionCookie.attributes,
+    path: "/",
+    httpOnly: true,
+  });
+  const sessionId = session.id;
+  console.log("Existing User:", existingUser);
+  console.log("Existing Sessions:", existingSessions);
+  console.log("Created Session:", session.id);
+  console.log("Session Cookie:", sessionCookie);
 
-  return redirect("/");
+  redirect("/");
 };
 
 export const logout = async () => {
-  "use server";
   const { session } = await validateRequest();
   if (!session) {
     return {

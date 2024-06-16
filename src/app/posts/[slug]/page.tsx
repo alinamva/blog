@@ -20,7 +20,12 @@ const Post = async ({ params }: { params: { slug: number } }) => {
     <div>
       <h2>{post.title}</h2>
       {post.image && (
-        <Image src={post.image} alt="post" width={500} height={500} />
+        <Image
+          src={post.image}
+          alt="post"
+          width={500}
+          height={500}
+        />
       )}
       <p>{post.description}</p>
       <span>{post.author}</span>

@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signup } from "@/lib/actions";
+import { validateRequest } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+export default async function Page() {
+  const { session } = await validateRequest();
+  if (session) {
+    redirect("/");
+  }
   return (
     <div className="text-munssel flex flex-col w-1/3 m-auto gap-6">
       <h1>Create an account</h1>
