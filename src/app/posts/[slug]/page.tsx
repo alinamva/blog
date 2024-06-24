@@ -11,7 +11,7 @@ const Post = async ({ params }: { params: { slug: number } }) => {
     .where(eq(postsTable.id, params.slug))
     .then((rows) => rows[0]);
 
-  console.log(post);
+  // console.log(post);
   if (!post) {
     return <div>Post not found</div>;
   }

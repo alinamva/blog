@@ -19,11 +19,7 @@ const config = {
     },
     extend: {
       colors: {
-        main: "#172A3A",
-        midnightGreen: "#004346",
-        munssel: "#508991",
-        tiffany: "#75DDDD",
-        mint: "#09BC8A",
+        skyBlue: "#82acdc",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

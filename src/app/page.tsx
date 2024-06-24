@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 
 export default async function Home() {
   const sessionId = cookies().get("session")?.value;
-  console.log(sessionId);
+  // console.log(sessionId);
   return (
     <main className="container flex gap-10 flex-col items-center justify-between px-24">
       <div className="flex justify-end w-full gap-4">

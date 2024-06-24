@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signup } from "@/lib/actions";
 import { validateRequest } from "@/lib/auth";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
@@ -30,6 +31,9 @@ export default async function Page() {
           id="password"
         />
         <br />
+        <span>
+          Already have an account? <Link href="/login">Sign in</Link>
+        </span>
         <Button type="submit">Continue</Button>
       </form>
     </div>

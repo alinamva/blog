@@ -13,7 +13,7 @@ const MyPosts = async () => {
     .select()
     .from(postsTable)
     .where(eq(postsTable.author, session?.userId));
-  console.log(myPosts);
+  // console.log(myPosts);
   return (
     <>
       {myPosts.length === 0 ? (
