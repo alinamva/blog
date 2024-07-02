@@ -8,6 +8,41 @@
       "when": 1719139177475,
       "tag": "0000_mushy_ghost_rider",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1719487835824,
+      "tag": "0001_harsh_blizzard",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1719822390312,
+      "tag": "0002_breezy_zemo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1719822750437,
+      "tag": "0003_futuristic_frank_castle",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1719841623831,
+      "tag": "0004_strong_switch",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1719842280811,
+      "tag": "0005_solid_hellion",
+      "breakpoints": true
     }
   ]
 }

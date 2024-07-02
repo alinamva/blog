@@ -8,9 +8,10 @@ import { cookies } from "next/headers";
 export default async function Home() {
   const sessionId = cookies().get("session")?.value;
   // console.log(sessionId);
+
   return (
-    <main className="container flex gap-10 flex-col items-center justify-between px-24">
-      <div className="flex justify-end w-full gap-4">
+    <main className="container flex gap-5 flex-col justify-between py-7 min-h-screen border-r-skyBlue/50 border-r-2 ">
+      {/* <div className="flex justify-end w-full gap-4">
         <Link href="/addpost">
           <Button>Add a post</Button>
         </Link>
@@ -22,7 +23,8 @@ export default async function Home() {
             Delete all posts
           </Button>
         </form>
-      </div>
+      </div> */}
+      <h3 className="text-skyBlue">Home</h3>
 
       <Posts />
     </main>

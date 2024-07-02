@@ -75,11 +75,35 @@ h2 {
   font-size: 20px;
   font-weight: 500;
 }
+li {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  padding: 8px;
+  align-items: center;
+  border-radius: 12px;
+  cursor: pointer;
+  color: skyblue;
+}
+li:hover {
+  background: skyblue;
+  color: white;
+}
+
+.li-hover:hover .icon {
+  color: red;
+  background-color: red;
+}
+label {
+  display: flex;
+  gap: 2px;
+  color: skyblue;
+}
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-black;
+    @apply bg-background text-black flex gap-20;
   }
 }

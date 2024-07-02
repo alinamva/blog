@@ -1,12 +1,10 @@
-import { Lucia, Session, TimeSpan } from "lucia";
+import { Lucia, TimeSpan } from "lucia";
 
 import db from "./db/migrate";
 import { sessionTable, usersTable } from "./db/schema";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { cookies } from "next/headers";
-import { User } from "lucia";
 import { cache } from "react";
-import { getSessionsByUserId } from "./actions";
 
 const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, usersTable);
 

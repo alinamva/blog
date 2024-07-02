@@ -61,18 +61,27 @@ export const getPosts = async () => {
 };
 
 export const createPost = async (data: FormData) => {
-  const { user } = await validateRequest();
-  if (user) {
-    const { session } = await validateRequest();
-    const title = data.get("title") as string;
+  const { user, session } = await validateRequest();
+  if (!user || !session?.userId) {
+    return "Please log in to create a post.";
+  }
+  if (user && session?.userId) {
+    // const title = data.get("title") as string;
     const description = data.get("description") as string;
     const image = data.get("image") as string;
-    const author = session?.userId;
+    const author = await db
+      .select({ username: usersTable.username })
+      .from(usersTable)
+      .where(eq(usersTable.id, session.userId))
+      .then((res) => res[0]);
+    const authorId = session.userId;
+
     const newPost = {
-      title: title[0].toUpperCase() + title.slice(1),
+      // title: title[0].toUpperCase() + title.slice(1),
       description: description[0].toLocaleUpperCase() + description.slice(1),
-      author,
+      author: author.username,
       image,
+      authorId,
     };
     await db.insert(postsTable).values(newPost);
     // console.log(newPost);
@@ -87,9 +96,9 @@ export const deleteAllPosts = async () => {
 export const deletePost = async (id: number) => {
   await db.delete(postsTable).where(eq(postsTable.id, id));
 };
-export const updatePost = async (id: number) => {
-  await db.update(postsTable).set({ title: "a" }).where(eq(postsTable.id, id));
-};
+// export const updatePost = async (id: number) => {
+//   await db.update(postsTable).set({ title: "a" }).where(eq(postsTable.id, id));
+// };
 
 export const signup = async (data: FormData) => {
   const userId = generateIdFromEntropySize(10);
@@ -163,10 +172,6 @@ export const login = async (formData: FormData) => {
     httpOnly: true,
   });
   const sessionId = session.id;
-  console.log("Existing User:", existingUser);
-  console.log("Existing Sessions:", existingSessions);
-  console.log("Created Session:", session.id);
-  console.log("Session Cookie:", sessionCookie);
 
   redirect("/");
 };

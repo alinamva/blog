@@ -9,9 +9,9 @@ import {
 
 const postsTable = pgTable("posts", {
   id: serial("id").primaryKey(),
-  title: varchar("title", { length: 256 }).notNull(),
   description: text("description"),
   author: text("author"),
+  authorId: text("author_id").references(() => usersTable.id),
   image: text("image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
