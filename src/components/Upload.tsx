@@ -1,43 +1,42 @@
 "use client";
+
+import { CldUploadWidget } from "next-cloudinary";
+
 import { useState } from "react";
-import { Button } from "./ui/button";
 
-const Upload = () => {
-  const [file, setFile] = useState(null);
+const Upload = ({ handleImageUpload }) => {
+  const [resource, setResource] = useState();
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (response.ok) {
-        console.log("Image uploaded successfully!");
-      } else {
-        console.error("Failed to upload image");
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    }
-  };
-
+  console.log("aaa", resource?.url);
   return (
-    <>
-      <input
-        type="file"
-        name="image"
-        onChange={handleFileChange}
-      />
-      <Button onClick={handleSubmit}>Upload Image</Button>
-    </>
+    <CldUploadWidget
+      signatureEndpoint="/api/post"
+      onSuccess={(result, { widget }) => {
+        console.log("Upload Result:", result);
+        setResource(result?.info);
+        const imageUrl = result?.info?.url;
+        if (imageUrl) {
+          handleImageUpload(imageUrl);
+        }
+        console.log(result);
+        widget.close();
+      }}
+    >
+      {({ open }) => {
+        function handleOnClick() {
+          setResource(undefined);
+          open();
+        }
+        return (
+          <button
+            onClick={handleOnClick}
+            type="button"
+          >
+            Upload an Image
+          </button>
+        );
+      }}
+    </CldUploadWidget>
   );
 };
 

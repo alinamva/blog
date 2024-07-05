@@ -1,11 +1,10 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
-import React, { useState } from "react";
-import { createlikes, deletePost } from "@/lib/actions";
+
+import { createlikes } from "@/lib/actions";
 import { Heart, Import, MessageCircle, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { postsTable } from "@/lib/db/schema";
+import Image from "next/image";
 
 type PostProps = typeof postsTable.$inferSelect & {
   hasLiked?: number;
@@ -23,8 +22,6 @@ const Post = ({
   const handleLike = async (postId: number) => {
     await createlikes(postId);
   };
-  const descLenght = description?.length;
-
   return (
     <div className="flex gap-6 border-b-gray-300 border-b">
       <div className="bg-gray-200 rounded-full w-12 h-12 flex mt-3  items-center justify-center p-3">
@@ -35,24 +32,16 @@ const Post = ({
         className=" relative w-full cursor-pointer  mt-2   p-2"
       >
         <h3>{author}</h3>
-
         <span className="text-sm">{description}</span>
-        <div className=" flex  flex-col gap-3">
-          {/* {descLenght > 100 && (
-            <Link href={`/posts/${id}`}>
-              <span className="transform transition-transform duration-300  ">{`See more -->`}</span>
-            </Link>
-          )} */}
-        </div>
-
-        {image?.includes("/") && image && (
+        <div className=" flex  flex-col gap-3"></div>
+        {image.map((im) => (
           <Image
-            src={image}
+            src={im}
             alt=""
             width={250}
             height={100}
           />
-        )}
+        ))}
 
         <div className="flex gap-5 items-center rounded-xl  p-2 ">
           <Button

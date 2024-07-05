@@ -60,15 +60,15 @@ export const getPosts = async () => {
   return likes;
 };
 
-export const createPost = async (data: FormData) => {
+export const createPost = async (imageUrl: string[], data: FormData) => {
   const { user, session } = await validateRequest();
+  console.log(imageUrl);
   if (!user || !session?.userId) {
     return "Please log in to create a post.";
   }
   if (user && session?.userId) {
-    // const title = data.get("title") as string;
     const description = data.get("description") as string;
-    const image = data.get("image") as string;
+    const image = imageUrl;
     const author = await db
       .select({ username: usersTable.username })
       .from(usersTable)
@@ -77,7 +77,6 @@ export const createPost = async (data: FormData) => {
     const authorId = session.userId;
 
     const newPost = {
-      // title: title[0].toUpperCase() + title.slice(1),
       description: description[0].toLocaleUpperCase() + description.slice(1),
       author: author.username,
       image,

@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   pgTable,
   primaryKey,
@@ -12,7 +13,10 @@ const postsTable = pgTable("posts", {
   description: text("description"),
   author: text("author"),
   authorId: text("author_id").references(() => usersTable.id),
-  image: text("image"),
+  image: text("image")
+    .array()
+    .notNull()
+    .default(sql`ARRAY[]::text[]`),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

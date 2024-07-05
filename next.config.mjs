@@ -4,7 +4,7 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@node-rs/argon2"],
   },
   images: {
-    domains: ["images.unsplash.com", "png.pngtree.com"],
+    domains: ["images.unsplash.com", "png.pngtree.com", "res.cloudinary.com"],
   },
 };
 
