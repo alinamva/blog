@@ -7,7 +7,7 @@ import {
   usersTable,
 } from "@/lib/db/schema";
 import { redirect } from "next/navigation";
-import { and, count, eq, getTableColumns } from "drizzle-orm";
+import { and, count, eq, getTableColumns, desc } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { lucia, validateRequest } from "@/lib/auth";
 import { generateIdFromEntropySize } from "lucia";
@@ -15,22 +15,17 @@ import db from "../db/migrate";
 import { hash } from "@node-rs/argon2";
 import { alias } from "drizzle-orm/pg-core";
 import { revalidatePath } from "next/cache";
+import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 
 export const getPosts = async () => {
   const { user } = await validateRequest();
-  const posts = await db.select().from(postsTable);
-
+  const posts = await db
+    .select()
+    .from(postsTable)
+    .orderBy(desc(postsTable.createdAt));
   if (!user) {
     return posts;
   }
-
-  // const like = db
-  //   .select({ value: count(likesTable.postId) })
-  //   .from(likesTable)
-  //   .where(
-  //     and(eq(likesTable.postId, post.id), eq(likesTable.userId, user?.id))
-  //   )
-  //   .groupBy(likesTable.postId);
 
   const columns = getTableColumns(postsTable);
 
@@ -48,27 +43,38 @@ export const getPosts = async () => {
       hasLiked,
       and(eq(hasLiked.postId, postsTable.id), eq(hasLiked.userId, user.id))
     )
-    .groupBy(postsTable.id);
-
-  //     .leftJoin(
-  //   likesTable,
-  //   and(eq(likesTable.postId, postsTable.id), eq(likesTable.userId, user.id))
-  // );
-
-  // console.log(likes);
+    .groupBy(postsTable.id)
+    .orderBy(desc(postsTable.createdAt));
 
   return likes;
 };
-
-export const createPost = async (imageUrl: string[], data: FormData) => {
+cloudinary.config({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+export const createPost = async (data: FormData) => {
   const { user, session } = await validateRequest();
-  console.log(imageUrl);
+
   if (!user || !session?.userId) {
     return "Please log in to create a post.";
   }
   if (user && session?.userId) {
     const description = data.get("description") as string;
-    const image = imageUrl;
+    const image = data.get("image") as File;
+    console.log(image);
+    // const uploadImage = await saveFile(image);
+    const imageFiles: File[] = [];
+    data.forEach((value, key) => {
+      if (key.startsWith("image")) {
+        imageFiles.push(value as File);
+      }
+    });
+
+    const uploadPromises = imageFiles.map((file) => saveFile(file));
+    const uploadResults = await Promise.all(uploadPromises);
+    const imageUrls = uploadResults.map((result) => result?.secure_url);
+
     const author = await db
       .select({ username: usersTable.username })
       .from(usersTable)
@@ -79,12 +85,15 @@ export const createPost = async (imageUrl: string[], data: FormData) => {
     const newPost = {
       description: description[0].toLocaleUpperCase() + description.slice(1),
       author: author.username,
-      image,
+      // image: [uploadImage?.secure_url],
+      image: imageUrls,
+
       authorId,
     };
+    console.log("post", newPost);
     await db.insert(postsTable).values(newPost);
     // console.log(newPost);
-    redirect("/");
+    revalidatePath("/");
   }
 };
 
@@ -143,6 +152,25 @@ export const getSessionsByUserId = async (userId: string) => {
     .from(sessionTable)
     .where(eq(sessionTable.userId, userId));
 };
+
+const saveFile = async (file: File) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = new Uint8Array(arrayBuffer);
+  const result = await new Promise<UploadApiResponse>((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream({}, function (error, result) {
+        if (error || result === undefined) {
+          reject(error || new Error("Upload result is undefined."));
+          return;
+        }
+        resolve(result);
+      })
+      .end(buffer);
+  });
+
+  return result;
+};
+
 export const login = async (formData: FormData) => {
   const username = formData.get("username") as string;
   const password = formData.get("password");

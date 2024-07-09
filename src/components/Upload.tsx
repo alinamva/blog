@@ -1,42 +1,26 @@
 "use client";
 
-import { CldUploadWidget } from "next-cloudinary";
-
 import { useState } from "react";
+import { Input } from "./ui/input";
 
-const Upload = ({ handleImageUpload }) => {
-  const [resource, setResource] = useState();
+const Upload = () => {
+  const [resources, setResources] = useState<File[]>([]);
 
-  console.log("aaa", resource?.url);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const fileList = Array.from(files);
+    setResources(fileList);
+  };
   return (
-    <CldUploadWidget
-      signatureEndpoint="/api/post"
-      onSuccess={(result, { widget }) => {
-        console.log("Upload Result:", result);
-        setResource(result?.info);
-        const imageUrl = result?.info?.url;
-        if (imageUrl) {
-          handleImageUpload(imageUrl);
-        }
-        console.log(result);
-        widget.close();
-      }}
-    >
-      {({ open }) => {
-        function handleOnClick() {
-          setResource(undefined);
-          open();
-        }
-        return (
-          <button
-            onClick={handleOnClick}
-            type="button"
-          >
-            Upload an Image
-          </button>
-        );
-      }}
-    </CldUploadWidget>
+    <Input
+      type="file"
+      name="image"
+      multiple
+      required
+      onChange={handleFileChange}
+    />
   );
 };
 

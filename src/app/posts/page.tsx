@@ -5,10 +5,10 @@ import { validateRequest } from "@/lib/auth";
 
 const Posts = async () => {
   const posts = await getPosts();
-  console.log(posts);
   const { session } = await validateRequest();
+
   return (
-    <div className=" gap-10 items-center  flex-1 flex-col justify-between">
+    <div className=" gap-10 items-center max-w-[800px] flex-1 flex-col justify-between ">
       {session && <PostForm />}
       {posts.length > 0
         ? posts.map((post) => (
@@ -18,8 +18,6 @@ const Posts = async () => {
             />
           ))
         : "Post Yoxdur"}
-      {/* Pretty ts yukleyersen extensiondu
-       */}
     </div>
   );
 };

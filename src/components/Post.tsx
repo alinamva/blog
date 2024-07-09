@@ -1,11 +1,12 @@
 "use client";
 
 import { createlikes } from "@/lib/actions";
-import { Heart, Import, MessageCircle, User } from "lucide-react";
+import { Dot, Heart, Import, MessageCircle, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { postsTable } from "@/lib/db/schema";
 import Image from "next/image";
-
+import { Carousel, CarouselContent, CarouselItem } from "./ui/carousel";
+import { formatDistanceToNow, subDays } from "date-fns";
 type PostProps = typeof postsTable.$inferSelect & {
   hasLiked?: number;
   likesCount?: number;
@@ -18,6 +19,7 @@ const Post = ({
   hasLiked,
   likesCount,
   description,
+  createdAt,
 }: PostProps) => {
   const handleLike = async (postId: number) => {
     await createlikes(postId);
@@ -31,18 +33,36 @@ const Post = ({
         key={id}
         className=" relative w-full cursor-pointer  mt-2   p-2"
       >
-        <h3>{author}</h3>
+        <div className="flex gap-1 items-center">
+          <h2>{author}</h2>
+          <Dot />
+          <div className="text-xs text-skyBlue/90">
+            {formatDistanceToNow(new Date(createdAt), {
+              addSuffix: true,
+            }).replace("about", "")}
+          </div>
+        </div>
         <span className="text-sm">{description}</span>
         <div className=" flex  flex-col gap-3"></div>
-        {image.map((im) => (
-          <Image
-            src={im}
-            alt=""
-            width={250}
-            height={100}
-          />
-        ))}
 
+        <Carousel className="w-full">
+          <CarouselContent>
+            {image.map((im) => (
+              <CarouselItem
+                className="pl-1 md:basis-1/2 lg:basis-1/3"
+                key={im}
+              >
+                <Image
+                  src={im}
+                  alt=""
+                  width={250}
+                  height={100}
+                  className="object-cover w-[250px] h-[250px]"
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
         <div className="flex gap-5 items-center rounded-xl  p-2 ">
           <Button
             type="submit"
