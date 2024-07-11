@@ -1,6 +1,13 @@
+CREATE TABLE IF NOT EXISTS "comments" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"post_id" serial NOT NULL,
+	"comment" text
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "likes" (
 	"user_id" text,
-	"post_id" serial NOT NULL,
+	"post_id" integer,
 	CONSTRAINT "likes_post_id_user_id_pk" PRIMARY KEY("post_id","user_id")
 );
 --> statement-breakpoint
@@ -32,6 +39,18 @@ CREATE TABLE IF NOT EXISTS "users" (
 );
 --> statement-breakpoint
 DO $$ BEGIN
+ ALTER TABLE "comments" ADD CONSTRAINT "comments_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "comments" ADD CONSTRAINT "comments_post_id_posts_id_fk" FOREIGN KEY ("post_id") REFERENCES "public"."posts"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  ALTER TABLE "likes" ADD CONSTRAINT "likes_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -54,3 +73,6 @@ DO $$ BEGIN
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "post_idx" ON "comments" USING btree (post_id);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "user_idx" ON "comments" USING btree (user_id);

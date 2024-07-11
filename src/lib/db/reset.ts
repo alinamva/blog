@@ -8,28 +8,31 @@ dotenv.config({ path: ".env.development" });
 
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
 
-async function reset() {
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-  });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-  const db = drizzle(pool);
+const db = drizzle(pool);
 
-  const query = sql<string>`SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = 'public'
-        AND table_type = 'BASE TABLE';
-    `;
+const dropAllTables = sql`
+  DO $$ DECLARE
+    r RECORD;
+  BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
+      EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+  END $$;
+`;
 
-  const tables = await db.execute(query);
-
-  // @LauraKirby
-  for (let table of tables.rows) {
-    const query = sql.raw(`TRUNCATE TABLE ${table.table_name} CASCADE;`);
-    await db.execute(query);
+async function resetDatabase() {
+  try {
+    await db.execute(dropAllTables);
+    console.log("All tables have been dropped successfully.");
+  } catch (error) {
+    console.error("Error dropping tables:", error);
+  } finally {
+    await pool.end();
   }
 }
 
-reset().catch((e) => {
-  console.error(e);
-});
+resetDatabase();

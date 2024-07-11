@@ -6,7 +6,7 @@ import { validateRequest } from "@/lib/auth";
 const Posts = async () => {
   const posts = await getPosts();
   const { session } = await validateRequest();
-
+  console.log(posts.map((post) => post));
   return (
     <div className=" gap-10 items-center max-w-[800px] flex-1 flex-col justify-between ">
       {session && <PostForm />}

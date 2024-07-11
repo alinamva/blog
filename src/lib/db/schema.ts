@@ -1,11 +1,14 @@
 import { sql } from "drizzle-orm";
 import {
+  integer,
   pgTable,
   primaryKey,
   serial,
   text,
   timestamp,
   varchar,
+  uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 
 const postsTable = pgTable("posts", {
@@ -47,23 +50,45 @@ const sessionTable = pgTable("sessions", {
     .notNull()
     .$onUpdate(() => new Date()),
 });
+
 const likesTable = pgTable(
   "likes",
   {
     userId: text("user_id").references(() => usersTable.id, {
       onDelete: "cascade",
     }),
-    postId: serial("post_id").references(() => postsTable.id, {
+    postId: integer("post_id").references(() => postsTable.id, {
       onDelete: "cascade",
     }),
   },
   (table) => ({ pk: primaryKey({ columns: [table.postId, table.userId] }) })
 );
 
+const commentsTable = pgTable(
+  "comments",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id),
+    postId: serial("post_id")
+      .notNull()
+      .references(() => postsTable.id),
+    comment: text("comment"),
+  },
+  (table) => {
+    return {
+      postIdx: index("post_idx").on(table.postId),
+      userIdx: index("user_idx").on(table.userId),
+    };
+  }
+);
+
 type Post = typeof postsTable.$inferSelect;
 type User = typeof usersTable.$inferSelect;
 type Session = typeof sessionTable.$inferSelect;
 type Likes = typeof likesTable.$inferSelect;
+type Comments = typeof commentsTable.$inferSelect;
 
-export { postsTable, usersTable, sessionTable, likesTable };
-export type { Post, User, Session, Likes };
+export { postsTable, usersTable, sessionTable, likesTable, commentsTable };
+export type { Post, User, Session, Likes, Comments };

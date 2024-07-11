@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  commentsTable,
   likesTable,
   postsTable,
   sessionTable,
@@ -34,10 +35,12 @@ export const getPosts = async () => {
   const likes = await db
     .select({
       ...columns,
+      comments: postsTable,
       likesCount: count(likesTable.postId).as("likesCount"),
       hasLiked: count(hasLiked.userId),
     })
     .from(postsTable)
+    .leftJoin(commentsTable, eq(commentsTable.postId, postsTable.id))
     .leftJoin(likesTable, eq(likesTable.postId, postsTable.id))
     .leftJoin(
       hasLiked,
@@ -61,6 +64,7 @@ export const createPost = async (data: FormData) => {
   }
   if (user && session?.userId) {
     const description = data.get("description") as string;
+    console.log(description);
     const image = data.get("image") as File;
     console.log(image);
     // const uploadImage = await saveFile(image);
@@ -264,5 +268,21 @@ export const unlikePost = async (id: number) => {
       .where(and(eq(likesTable.postId, postId), eq(likesTable.userId, userId)));
 
     revalidatePath("/");
+  }
+};
+
+export const createComments = async (postId: string, data: FormData) => {
+  const { user } = await validateRequest();
+  if (!user) {
+    redirect("/login");
+  }
+  if (user) {
+    const userId = user.id as string;
+    const comment = data.get("comment") as string;
+
+    const newComment = { userId, postId, comment };
+
+    console.log(newComment);
+    await db.insert(commentsTable).values(newComment);
   }
 };

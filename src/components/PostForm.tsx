@@ -1,11 +1,9 @@
 "use client";
 import { createPost } from "@/lib/actions";
-import React, { useEffect, useState } from "react";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Send } from "lucide-react";
 import Upload from "./Upload";
-
 const PostForm = () => {
   return (
     <form action={createPost}>
@@ -14,6 +12,7 @@ const PostForm = () => {
           name="description"
           className="whitespace-pre-wrap"
         />
+
         <div className="flex justify-between w-full px-5 items-end">
           <Upload />
           <Button
